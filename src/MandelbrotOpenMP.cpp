@@ -1,4 +1,4 @@
-#include "../include/MandelbrotSingleThread.hpp"
+#include "../include/MandelbrotOpenMP.hpp"
 
 
 static int computeMandelbrotPixel(sf::Vector2i pixel,
@@ -20,21 +20,20 @@ static int computeMandelbrotPixel(sf::Vector2i pixel,
     return i;
 }
 
-void computeMandelbrotSingleThread(const sf::Vector2i& origin,
-                                   const sf::Vector2i& dimension,
-                                   const sf::Vector2f& pixelDimensions,
-                                   int precision,
-                                   unsigned char *pixelColors)
+void computeMandelbrotOpenMP(const sf::Vector2i& origin,
+                             const sf::Vector2i& dimension,
+                             const sf::Vector2f& pixelDimensions,
+                             int precision,
+                             unsigned char *pixelColors,
+                             unsigned int numThread)
 {
-    int mandelbrotValue;
-    float ratio;
-
+    omp_set_num_threads(numThread);
+    #pragma omp parallel for
     for(int x = 0; x < dimension.x; x++)
     {
         for(int y = 0; y < dimension.y; y++)
         {
-            mandelbrotValue = computeMandelbrotPixel(sf::Vector2i(x, y), origin, pixelDimensions, precision);
-            ratio = (float)mandelbrotValue / precision;
+            int mandelbrotValue = computeMandelbrotPixel(sf::Vector2i(x, y), origin, pixelDimensions, precision);
             float ratio = (float)mandelbrotValue / precision * 5;
             if(mandelbrotValue == precision)
             {
