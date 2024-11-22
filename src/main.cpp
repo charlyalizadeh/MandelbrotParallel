@@ -65,8 +65,19 @@ void update(sf::RenderWindow& window, sf::Clock& deltaClock, MandelbrotState& ma
         ImGui::SFML::ProcessEvent(window, event);
         if(!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
         {
-            if(event.type == sf::Event::MouseWheelMoved)
-                mandelbrotState.pixelDimensions.x -= 0.0001 * event.mouseWheel.delta;
+            if(event.type == sf::Event::MouseWheelMoved) {
+                if(event.mouseWheel.delta > 0)
+                {
+                    mandelbrotState.pixelDimensions.x -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.x;
+                    mandelbrotState.pixelDimensions.y -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.y;
+                }
+                else
+                {
+                    mandelbrotState.pixelDimensions.x -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.x;
+                    mandelbrotState.pixelDimensions.y -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.y;
+                }
+
+            }
             if(!interactionState.isDraging && event.type == sf::Event::MouseButtonPressed)
             {
                 interactionState.isDraging = true;
@@ -170,7 +181,6 @@ int main()
         // If we have a state change we redraw the mandelbrot fractal
         if(mState != mState2)
         {
-            mState2.pixelDimensions.y = mState2.pixelDimensions.x;
             mState = mState2;
             switch(mState.computeMethod)
             {
