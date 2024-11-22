@@ -3,6 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include "VectorUtility.hpp"
+#include "Mandelbrot.hpp"
 
 
 void computeMandelbrotSingleThread(const sf::Vector2i& origin,

@@ -2,8 +2,9 @@
 #define MANDELBROTOPENMP_H
 
 #include <SFML/System/Vector2.hpp>
-#include "VectorUtility.hpp"
 #include <omp.h>
+#include "VectorUtility.hpp"
+#include "Mandelbrot.hpp"
 
 
 void computeMandelbrotOpenMP(const sf::Vector2i& origin,
