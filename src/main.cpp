@@ -97,28 +97,19 @@ void drawImGui(MandelbrotState& mandelbrotState, const char** computeMethods, un
     ImGui::Begin("Parameters");
     ImGui::ListBox("Computation method", &mandelbrotState.computeMethod, computeMethods, nMethod, 4);
     ImGui::LabelText("Time (ms)", mandelbrotTime.c_str());
-    ImGui::SeparatorText("Origin");
-    {
-        ImGui::DragInt("Origin X", &mandelbrotState.origin.x, 1);
-        ImGui::DragInt("Origin Y", &mandelbrotState.origin.y, 1);
-    }
-    ImGui::SeparatorText("Pixel dimension");
-    {
-        ImGui::DragFloat("PixelDim", &mandelbrotState.pixelDimensions.x, 0.0001, 0.0000000001, 1.0, "%.10f", ImGuiSliderFlags_Logarithmic);
-        //ImGui::DragFloat("PixelDim Y", &mandelbrotState.pixelDimensions.y, 0.0001, 0.0000000001, 1.0, "%.10f", ImGuiSliderFlags_Logarithmic);
-    }
+    if(mandelbrotState.computeMethod == 0)
+        ImGui::BeginDisabled();
+    ImGui::InputInt("Num Thread", &mandelbrotState.nThread, 1, 64);
+    if(mandelbrotState.computeMethod == 0)
+        ImGui::EndDisabled();
     ImGui::SeparatorText("");
-    {
-        ImGui::DragInt("Precision", &mandelbrotState.precision, 1);
-    }
+    ImGui::InputInt("Origin X", &mandelbrotState.origin.x);
+    ImGui::InputInt("Origin Y", &mandelbrotState.origin.y);
     ImGui::SeparatorText("");
-    {
-        if(mandelbrotState.computeMethod == 0)
-            ImGui::BeginDisabled();
-        ImGui::DragInt("Num Thread", &mandelbrotState.nThread, 1, 1, 64);
-        if(mandelbrotState.computeMethod == 0)
-            ImGui::EndDisabled();
-    }
+    ImGui::InputFloat("Pixel dimension", &mandelbrotState.pixelDimensions.x, 0.0000000001f, 1.0f, "%.10f");
+    ImGui::SeparatorText("");
+    ImGui::InputInt("Precision", &mandelbrotState.precision, 1);
+    ImGui::SeparatorText("");
     ImGui::End();
 }
 
