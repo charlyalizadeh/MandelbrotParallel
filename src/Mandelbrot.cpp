@@ -1,20 +1,25 @@
 #include "../include/Mandelbrot.hpp"
 
 
-int computeMandelbrotPixel(sf::Vector2i pixel,
-                           const sf::Vector2i& origin,
-                           const sf::Vector2f& pixelDimensions,
+int computeMandelbrotPixel(int pixelX, int pixelY,
+                           int originX, int originY,
+                           float pixelDimensionX, float pixelDimensionY,
                            int precision)
 {
-    sf::Vector2f coord, z;
+    float cX, cY, zX, zY;
+    float temp;
     int i;
 
-    coord = pixel2coord(pixel, origin, pixelDimensions);
-    z = coord;
+    cX = (pixelX - originX) * pixelDimensionX;
+    cY = (originY - pixelY) * pixelDimensionY;
+    zX = cX;
+    zY = cY;
     i = 0;
-    while(i < precision && z.x * z.x + z.y * z.y <= 4)
+    while(i < precision && zX * zX + zY * zY <= 4)
     {
-        z = complexPow2(z) + coord;
+        temp = zY;
+        zY = 2 * zX * zY + cY;
+        zX = zX * zX - temp * temp + cX;
         i++;
     }
     return i;

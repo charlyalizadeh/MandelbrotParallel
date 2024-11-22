@@ -10,7 +10,7 @@ static void computeMandelbrotRow(const sf::Vector2i& origin,
 {
     for(int y = 0; y < dimension.y; y++)
     {
-        int mandelbrotValue = computeMandelbrotPixel(sf::Vector2i(x, y), origin, pixelDimensions, precision);
+        int mandelbrotValue = computeMandelbrotPixel(x, y, origin.x, origin.y, pixelDimensions.x, pixelDimensions.y, precision);
         float ratio = (float)mandelbrotValue / precision * 5;
         if(mandelbrotValue == precision)
         {

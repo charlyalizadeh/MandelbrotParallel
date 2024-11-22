@@ -14,7 +14,7 @@ void computeMandelbrotSingleThread(const sf::Vector2i& origin,
     {
         for(int y = 0; y < dimension.y; y++)
         {
-            mandelbrotValue = computeMandelbrotPixel(sf::Vector2i(x, y), origin, pixelDimensions, precision);
+            mandelbrotValue = computeMandelbrotPixel(x, y, origin.x, origin.y, pixelDimensions.x, pixelDimensions.y, precision);
             ratio = (float)mandelbrotValue / precision * 5;
             if(mandelbrotValue == precision)
             {

@@ -3,7 +3,6 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <omp.h>
-#include "VectorUtility.hpp"
 #include "Mandelbrot.hpp"
 
 

@@ -2,7 +2,6 @@
 #define MANDELBROTSINGLETHREAD_H
 
 #include <SFML/System/Vector2.hpp>
-#include "VectorUtility.hpp"
 #include "Mandelbrot.hpp"
 
 

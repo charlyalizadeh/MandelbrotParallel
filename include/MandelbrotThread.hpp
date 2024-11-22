@@ -4,7 +4,6 @@
 #include <vector>
 #include <thread>
 #include <SFML/System/Vector2.hpp>
-#include "VectorUtility.hpp"
 #include "Mandelbrot.hpp"
 
 
