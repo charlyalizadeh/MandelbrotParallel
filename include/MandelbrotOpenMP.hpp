@@ -3,6 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <omp.h>
+#include <immintrin.h>
 #include "Mandelbrot.hpp"
 
 
@@ -12,6 +13,5 @@ void computeMandelbrotOpenMP(const sf::Vector2i& origin,
                              int precision,
                              unsigned char *pixelColors,
                              unsigned int numThread);
-
 
 #endif
