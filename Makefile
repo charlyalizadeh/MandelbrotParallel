@@ -4,7 +4,7 @@ OBJS_IMGUI=$(addprefix obj/imgui/,$(subst .cpp,.o,$(notdir $(SRCS_IMGUI))))
 SRCS=src/main.cpp src/Mandelbrot.cpp src/MandelbrotSingleThread.cpp src/MandelbrotOpenMP.cpp src/MandelbrotThread.cpp
 OBJS=$(subst src,obj,$(subst .cpp,.o,$(SRCS)))
 INCLUDES=include lib/imgui
-FLAGS=-lsfml-window -lsfml-system -lsfml-graphics -lglfw -lGL -fopenmp -I includes
+FLAGS=-lsfml-window -lsfml-system -lsfml-graphics -lglfw -lGL -fopenmp -mavx -march=native -I includes
 CC=g++
 
 $(NAME): $(OBJS) $(OBJS_IMGUI)

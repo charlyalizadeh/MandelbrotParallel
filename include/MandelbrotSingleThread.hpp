@@ -3,6 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include "Mandelbrot.hpp"
+#include <immintrin.h>
 
 
 void computeMandelbrotSingleThread(const sf::Vector2i& origin,
@@ -11,5 +12,10 @@ void computeMandelbrotSingleThread(const sf::Vector2i& origin,
                                    int precision,
                                    unsigned char *pixelColors);
 
+void computeMandelbrotSingleThreadIntrinsic(const sf::Vector2i& origin,
+                                            const sf::Vector2i& dimension,
+                                            const sf::Vector2f& pixelDimensions,
+                                            int precision,
+                                            unsigned char *pixelColors);
 
 #endif

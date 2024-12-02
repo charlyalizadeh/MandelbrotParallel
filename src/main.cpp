@@ -32,19 +32,23 @@ struct MandelbrotState
     int precision;
     int computeMethod;
     int nThread;
+    bool intrinsic;
 
     MandelbrotState(sf::Vector2i dimension,
                     sf::Vector2i origin,
                     sf::Vector2f pixelDimensions,
                     int precision,
                     int computeMethod,
-                    int nThread) :
+                    int nThread,
+                    bool intrinsic) :
                         dimension(dimension),
                         origin(origin),
                         pixelDimensions(pixelDimensions),
                         precision(precision),
                         computeMethod(computeMethod),
-                        nThread(nThread) {}
+                        nThread(nThread),
+                        intrinsic(intrinsic) {}
+
 };
 bool operator !=(const MandelbrotState& m1, const MandelbrotState& m2)
 {
@@ -53,7 +57,8 @@ bool operator !=(const MandelbrotState& m1, const MandelbrotState& m2)
             m1.pixelDimensions != m2.pixelDimensions ||
             m1.precision != m2.precision ||
             m1.computeMethod != m2.computeMethod ||
-            m1.nThread != m2.nThread);
+            m1.nThread != m2.nThread ||
+            m1.intrinsic != m2.intrinsic);
 }
 
 
@@ -103,9 +108,11 @@ void update(sf::RenderWindow& window, sf::Clock& deltaClock, MandelbrotState& ma
     }
     ImGui::SFML::Update(window, deltaClock.restart());
 }
-void drawImGui(MandelbrotState& mandelbrotState, const char** computeMethods, unsigned int nMethod, const std::string& mandelbrotTime)
+void drawImGui(sf::RenderWindow& window, MandelbrotState& mandelbrotState, const char** computeMethods, unsigned int nMethod, const std::string& mandelbrotTime)
 {
     ImGui::Begin("Parameters");
+    auto mousePosition = sf::Mouse::getPosition(window);
+    ImGui::Text("X: (%d) Y: (%d)", mousePosition.x, mousePosition.y);
     ImGui::ListBox("Computation method", &mandelbrotState.computeMethod, computeMethods, nMethod, 4);
     ImGui::LabelText("Time (ms)", mandelbrotTime.c_str());
     if(mandelbrotState.computeMethod == 0)
@@ -113,6 +120,7 @@ void drawImGui(MandelbrotState& mandelbrotState, const char** computeMethods, un
     ImGui::InputInt("Num Thread", &mandelbrotState.nThread, 1, 64);
     if(mandelbrotState.computeMethod == 0)
         ImGui::EndDisabled();
+    ImGui::Checkbox("intrinsic: ", &mandelbrotState.intrinsic);
     ImGui::SeparatorText("");
     ImGui::InputInt("Origin X", &mandelbrotState.origin.x);
     ImGui::InputInt("Origin Y", &mandelbrotState.origin.y);
@@ -128,11 +136,12 @@ int main()
 {
     // Parameters
     MandelbrotState mState(sf::Vector2i(1920, 1080),
-                           sf::Vector2i(1920 / 2 + 200, 1080 / 2),
+                           sf::Vector2i(1920 / 2 + 600, 1080 / 2),
                            sf::Vector2f(0.002, 0.002),
                            40,
-                           1,
-                           4);
+                           0,
+                           4,
+                           true);
     const char* computeMethods[] = { "Single Thread", "OpenMP", "std::thread" };
     MandelbrotState mState2 = mState;
 
@@ -147,12 +156,34 @@ int main()
     // Pixel array
     sf::Uint8 *pixelColors = new sf::Uint8[mState.dimension.x * mState.dimension.y * 4];
     auto t1 = high_resolution_clock::now();
-    computeMandelbrotSingleThread(mState.origin,
-                                  mState.dimension,
-                                  mState.pixelDimensions,
-                                  mState.precision,
-                                  pixelColors);
     auto t2 = high_resolution_clock::now();
+    switch(mState.computeMethod)
+    {
+        case 0:
+            if(mState.intrinsic)
+            {
+                t1 = high_resolution_clock::now();
+                computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                t2 = high_resolution_clock::now();
+            }
+            else
+            {
+                t1 = high_resolution_clock::now();
+                computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                t2 = high_resolution_clock::now();
+            }
+            break;
+        case 1:
+            t1 = high_resolution_clock::now();
+            computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors, mState.nThread);
+            t2 = high_resolution_clock::now();
+            break;
+        case 2:
+            t1 = high_resolution_clock::now();
+            computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors, mState.nThread);
+            t2 = high_resolution_clock::now();
+            break;
+    }
     duration<double, std::milli> ms_double = t2 - t1;
     mandelbrotTime = std::to_string(ms_double.count());
 
@@ -172,11 +203,10 @@ int main()
     sf::Clock deltaClock;
     while(window.isOpen())
     {
-        // Close or resize the window
         update(window, deltaClock, mState2, interactionState);
 
         // ImGui
-        drawImGui(mState2, computeMethods, 3, mandelbrotTime);
+        drawImGui(window, mState2, computeMethods, 3, mandelbrotTime);
 
         // If we have a state change we redraw the mandelbrot fractal
         if(mState != mState2)
@@ -185,9 +215,18 @@ int main()
             switch(mState.computeMethod)
             {
                 case 0:
-                    t1 = high_resolution_clock::now();
-                    computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
-                    t2 = high_resolution_clock::now();
+                    if(mState.intrinsic)
+                    {
+                        t1 = high_resolution_clock::now();
+                        computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                        t2 = high_resolution_clock::now();
+                    }
+                    else
+                    {
+                        t1 = high_resolution_clock::now();
+                        computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                        t2 = high_resolution_clock::now();
+                    }
                     break;
                 case 1:
                     t1 = high_resolution_clock::now();

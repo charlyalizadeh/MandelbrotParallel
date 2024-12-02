@@ -13,19 +13,9 @@ static void computeMandelbrotRow(const sf::Vector2i& origin,
         int mandelbrotValue = computeMandelbrotPixel(x, y, origin.x, origin.y, pixelDimensions.x, pixelDimensions.y, precision);
         float ratio = (float)mandelbrotValue / precision * 5;
         if(mandelbrotValue == precision)
-        {
-            pixelColors[(y * dimension.x + x) * 4] = 0;
-            pixelColors[(y * dimension.x + x) * 4 + 1] = 0;
-            pixelColors[(y * dimension.x + x) * 4 + 2] = 0;
-            pixelColors[(y * dimension.x + x) * 4 + 3] = 0;
-        }
+            colorPixel(pixelColors, (y * dimension.x + x) * 4, 255, 255, 255, 255);
         else
-        {
-            pixelColors[(y * dimension.x + x) * 4] = ratio * 255;
-            pixelColors[(y * dimension.x + x) * 4 + 1] = ratio * 255;
-            pixelColors[(y * dimension.x + x) * 4 + 2] = (1 - ratio * 255);
-            pixelColors[(y * dimension.x + x) * 4 + 3] = 255;
-        }
+            colorPixel(pixelColors, (y * dimension.x + x) * 4, 0, 0, 0, 255);
     }
 }
 
