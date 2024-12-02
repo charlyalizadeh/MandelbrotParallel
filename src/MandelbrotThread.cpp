@@ -3,7 +3,7 @@
 
 static void computeMandelbrotRow(const sf::Vector2i& origin,
                                  const sf::Vector2i& dimension,
-                                 const sf::Vector2f& pixelDimensions,
+                                 const sf::Vector2<double>& pixelDimensions,
                                  int precision,
                                  unsigned char *pixelColors,
                                  int x)
@@ -21,7 +21,7 @@ static void computeMandelbrotRow(const sf::Vector2i& origin,
 
 static void computeMandelbrotRows(const sf::Vector2i& origin,
                                   const sf::Vector2i& dimension,
-                                  const sf::Vector2f& pixelDimensions,
+                                  const sf::Vector2<double>& pixelDimensions,
                                   int precision,
                                   unsigned char *pixelColors,
                                   int xStart, int xEnd)
@@ -32,7 +32,7 @@ static void computeMandelbrotRows(const sf::Vector2i& origin,
 
 void computeMandelbrotThread(const sf::Vector2i& origin,
                              const sf::Vector2i& dimension,
-                             const sf::Vector2f& pixelDimensions,
+                             const sf::Vector2<double>& pixelDimensions,
                              int precision,
                              unsigned char *pixelColors,
                              unsigned int numThread)

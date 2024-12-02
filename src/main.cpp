@@ -28,7 +28,7 @@ struct MandelbrotState
 {
     sf::Vector2i dimension;
     sf::Vector2i origin;
-    sf::Vector2f pixelDimension;
+    sf::Vector2<double> pixelDimension;
     int precision;
     int computeMethod;
     int nThread;
@@ -36,7 +36,7 @@ struct MandelbrotState
 
     MandelbrotState(sf::Vector2i dimension,
                     sf::Vector2i origin,
-                    sf::Vector2f pixelDimension,
+                    sf::Vector2<double> pixelDimension,
                     int precision,
                     int computeMethod,
                     int nThread,
@@ -149,7 +149,7 @@ int main()
     // Parameters
     MandelbrotState mState(sf::Vector2i(1920, 1080),
                            sf::Vector2i(1920 / 2 + 600, 1080 / 2),
-                           sf::Vector2f(0.002, 0.002),
+                           sf::Vector2<double>(0.002, 0.002),
                            40,
                            0,
                            4,

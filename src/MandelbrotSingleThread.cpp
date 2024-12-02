@@ -4,7 +4,7 @@
 #include <cstdio>
 void computeMandelbrotSingleThread(const sf::Vector2i& origin,
                                    const sf::Vector2i& dimension,
-                                   const sf::Vector2f& pixelDimensions,
+                                   const sf::Vector2<double>& pixelDimensions,
                                    int precision,
                                    unsigned char *pixelColors)
 {
@@ -29,7 +29,7 @@ void computeMandelbrotSingleThread(const sf::Vector2i& origin,
 #include <cstdio>
 void computeMandelbrotSingleThreadIntrinsic(const sf::Vector2i& origin,
                                             const sf::Vector2i& dimension,
-                                            const sf::Vector2f& pixelDimensions,
+                                            const sf::Vector2<double>& pixelDimensions,
                                             int precision,
                                             unsigned char *pixelColors)
 {

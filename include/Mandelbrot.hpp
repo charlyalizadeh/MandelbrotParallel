@@ -6,7 +6,7 @@
 
 int computeMandelbrotPixel(int pixelX, int pixelY,
                            int originX, int originY,
-                           float pixelDimensionX, float pixelDimensionY,
+                           double pixelDimensionX, double pixelDimensionY,
                            int precision);
 
 void colorPixel(unsigned char* pixelColors,

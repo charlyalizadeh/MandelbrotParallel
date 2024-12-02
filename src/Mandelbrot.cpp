@@ -1,14 +1,13 @@
 #include "../include/Mandelbrot.hpp"
 
 
-#include <cstdio>
 int computeMandelbrotPixel(int pixelX, int pixelY,
                            int originX, int originY,
-                           float pixelDimensionX, float pixelDimensionY,
+                           double pixelDimensionX, double pixelDimensionY,
                            int precision)
 {
-    float cR, cI, zR, zI;
-    float temp;
+    double cR, cI, zR, zI;
+    double temp;
     int i;
 
     cR = (pixelX - originX) * pixelDimensionX;
