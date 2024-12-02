@@ -28,7 +28,7 @@ struct MandelbrotState
 {
     sf::Vector2i dimension;
     sf::Vector2i origin;
-    sf::Vector2f pixelDimensions;
+    sf::Vector2f pixelDimension;
     int precision;
     int computeMethod;
     int nThread;
@@ -36,14 +36,14 @@ struct MandelbrotState
 
     MandelbrotState(sf::Vector2i dimension,
                     sf::Vector2i origin,
-                    sf::Vector2f pixelDimensions,
+                    sf::Vector2f pixelDimension,
                     int precision,
                     int computeMethod,
                     int nThread,
                     bool intrinsic) :
                         dimension(dimension),
                         origin(origin),
-                        pixelDimensions(pixelDimensions),
+                        pixelDimension(pixelDimension),
                         precision(precision),
                         computeMethod(computeMethod),
                         nThread(nThread),
@@ -54,7 +54,7 @@ bool operator !=(const MandelbrotState& m1, const MandelbrotState& m2)
 {
     return (m1.dimension != m2.dimension ||
             m1.origin != m2.origin ||
-            m1.pixelDimensions != m2.pixelDimensions ||
+            m1.pixelDimension != m2.pixelDimension ||
             m1.precision != m2.precision ||
             m1.computeMethod != m2.computeMethod ||
             m1.nThread != m2.nThread ||
@@ -70,18 +70,29 @@ void update(sf::RenderWindow& window, sf::Clock& deltaClock, MandelbrotState& ma
         ImGui::SFML::ProcessEvent(window, event);
         if(!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
         {
-            if(event.type == sf::Event::MouseWheelMoved) {
+            if(event.type == sf::Event::MouseWheelMoved)
+            {
+                auto mousePosition = sf::Mouse::getPosition(window);
+                sf::Vector2f oldCoord = sf::Vector2f(mousePosition - mandelbrotState.origin);
+                oldCoord.x *= mandelbrotState.pixelDimension.x;
+                oldCoord.y *= mandelbrotState.pixelDimension.y;
                 if(event.mouseWheel.delta > 0)
                 {
-                    mandelbrotState.pixelDimensions.x -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.x;
-                    mandelbrotState.pixelDimensions.y -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.y;
+                    mandelbrotState.pixelDimension.x -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimension.x;
+                    mandelbrotState.pixelDimension.y -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimension.y;
                 }
                 else
                 {
-                    mandelbrotState.pixelDimensions.x -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.x;
-                    mandelbrotState.pixelDimensions.y -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimensions.y;
+                    mandelbrotState.pixelDimension.x -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimension.x;
+                    mandelbrotState.pixelDimension.y -= 0.1 * event.mouseWheel.delta * mandelbrotState.pixelDimension.y;
                 }
-
+                sf::Vector2f newCoord = sf::Vector2f(mousePosition - mandelbrotState.origin);
+                newCoord.x *= mandelbrotState.pixelDimension.x;
+                newCoord.y *= mandelbrotState.pixelDimension.y;
+                sf::Vector2f offset = newCoord - oldCoord;
+                offset.x /= mandelbrotState.pixelDimension.x;
+                offset.y /= mandelbrotState.pixelDimension.y;
+                mandelbrotState.origin += sf::Vector2i(offset);
             }
             if(!interactionState.isDraging && event.type == sf::Event::MouseButtonPressed)
             {
@@ -111,24 +122,25 @@ void update(sf::RenderWindow& window, sf::Clock& deltaClock, MandelbrotState& ma
 void drawImGui(sf::RenderWindow& window, MandelbrotState& mandelbrotState, const char** computeMethods, unsigned int nMethod, const std::string& mandelbrotTime)
 {
     ImGui::Begin("Parameters");
-    auto mousePosition = sf::Mouse::getPosition(window);
-    ImGui::Text("X: (%d) Y: (%d)", mousePosition.x, mousePosition.y);
     ImGui::ListBox("Computation method", &mandelbrotState.computeMethod, computeMethods, nMethod, 4);
-    ImGui::LabelText("Time (ms)", mandelbrotTime.c_str());
     if(mandelbrotState.computeMethod == 0)
         ImGui::BeginDisabled();
     ImGui::InputInt("Num Thread", &mandelbrotState.nThread, 1, 64);
     if(mandelbrotState.computeMethod == 0)
         ImGui::EndDisabled();
-    ImGui::Checkbox("intrinsic: ", &mandelbrotState.intrinsic);
-    ImGui::SeparatorText("");
-    ImGui::InputInt("Origin X", &mandelbrotState.origin.x);
-    ImGui::InputInt("Origin Y", &mandelbrotState.origin.y);
-    ImGui::SeparatorText("");
-    ImGui::InputFloat("Pixel dimension", &mandelbrotState.pixelDimensions.x, 0.0000000001f, 1.0f, "%.10f");
-    ImGui::SeparatorText("");
+    if(mandelbrotState.computeMethod != 0)
+        ImGui::BeginDisabled();
+    ImGui::Checkbox("Intrinsic: ", &mandelbrotState.intrinsic);
+    if(mandelbrotState.computeMethod != 0)
+        ImGui::EndDisabled();
     ImGui::InputInt("Precision", &mandelbrotState.precision, 1);
-    ImGui::SeparatorText("");
+
+    auto mousePosition = sf::Mouse::getPosition(window);
+    ImGui::LabelText("Time (ms)", mandelbrotTime.c_str());
+    ImGui::LabelText("(Pixel)", "(X, Y): (%d, %d)", mousePosition.x, mousePosition.y);
+    ImGui::LabelText("(Coord)", "(X, Y): (%f, %f)",
+                (mousePosition.x - mandelbrotState.origin.x) * mandelbrotState.pixelDimension.x,
+                (mousePosition.y - mandelbrotState.origin.y) * mandelbrotState.pixelDimension.y);
     ImGui::End();
 }
 
@@ -163,24 +175,24 @@ int main()
             if(mState.intrinsic)
             {
                 t1 = high_resolution_clock::now();
-                computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
                 t2 = high_resolution_clock::now();
             }
             else
             {
                 t1 = high_resolution_clock::now();
-                computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
                 t2 = high_resolution_clock::now();
             }
             break;
         case 1:
             t1 = high_resolution_clock::now();
-            computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors, mState.nThread);
+            computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
             t2 = high_resolution_clock::now();
             break;
         case 2:
             t1 = high_resolution_clock::now();
-            computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors, mState.nThread);
+            computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
             t2 = high_resolution_clock::now();
             break;
     }
@@ -218,24 +230,24 @@ int main()
                     if(mState.intrinsic)
                     {
                         t1 = high_resolution_clock::now();
-                        computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                        computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
                         t2 = high_resolution_clock::now();
                     }
                     else
                     {
                         t1 = high_resolution_clock::now();
-                        computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors);
+                        computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
                         t2 = high_resolution_clock::now();
                     }
                     break;
                 case 1:
                     t1 = high_resolution_clock::now();
-                    computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors, mState.nThread);
+                    computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
                     t2 = high_resolution_clock::now();
                     break;
                 case 2:
                     t1 = high_resolution_clock::now();
-                    computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimensions, mState.precision, pixelColors, mState.nThread);
+                    computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
                     t2 = high_resolution_clock::now();
                     break;
             }
