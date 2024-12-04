@@ -9,9 +9,6 @@ int computeMandelbrotPixel(int pixelX, int pixelY,
                            double pixelDimensionX, double pixelDimensionY,
                            int precision);
 
-void colorPixel(unsigned char* pixelColors,
-                int index,
-                int r, int g, int b, int a);
 
 
 #endif

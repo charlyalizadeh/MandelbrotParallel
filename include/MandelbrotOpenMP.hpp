@@ -11,7 +11,7 @@ void computeMandelbrotOpenMP(const sf::Vector2i& origin,
                              const sf::Vector2i& dimension,
                              const sf::Vector2<double>& pixelDimensions,
                              int precision,
-                             unsigned char *pixelColors,
+                             unsigned int *pixelIteration,
                              unsigned int numThread);
 
 #endif

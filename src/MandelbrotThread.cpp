@@ -5,17 +5,13 @@ static void computeMandelbrotRow(const sf::Vector2i& origin,
                                  const sf::Vector2i& dimension,
                                  const sf::Vector2<double>& pixelDimensions,
                                  int precision,
-                                 unsigned char *pixelColors,
+                                 unsigned int *pixelIteration,
                                  int x)
 {
     for(int y = 0; y < dimension.y; y++)
     {
-        int mandelbrotValue = computeMandelbrotPixel(x, y, origin.x, origin.y, pixelDimensions.x, pixelDimensions.y, precision);
-        float ratio = (float)mandelbrotValue / precision * 5;
-        if(mandelbrotValue == precision)
-            colorPixel(pixelColors, (y * dimension.x + x) * 4, 255, 255, 255, 255);
-        else
-            colorPixel(pixelColors, (y * dimension.x + x) * 4, 0, 0, 0, 255);
+        int iteration = computeMandelbrotPixel(x, y, origin.x, origin.y, pixelDimensions.x, pixelDimensions.y, precision);
+        pixelIteration[y * dimension.x + x] = iteration;
     }
 }
 
@@ -23,18 +19,18 @@ static void computeMandelbrotRows(const sf::Vector2i& origin,
                                   const sf::Vector2i& dimension,
                                   const sf::Vector2<double>& pixelDimensions,
                                   int precision,
-                                  unsigned char *pixelColors,
+                                  unsigned int *pixelIteration,
                                   int xStart, int xEnd)
 {
     for(int x = xStart; x < xEnd; x++)
-        computeMandelbrotRow(origin, dimension, pixelDimensions, precision, pixelColors, x);
+        computeMandelbrotRow(origin, dimension, pixelDimensions, precision, pixelIteration, x);
 }
 
 void computeMandelbrotThread(const sf::Vector2i& origin,
                              const sf::Vector2i& dimension,
                              const sf::Vector2<double>& pixelDimensions,
                              int precision,
-                             unsigned char *pixelColors,
+                             unsigned int *pixelIteration,
                              unsigned int numThread)
 {
     int nRowPerThread = dimension.x / numThread;
@@ -50,7 +46,7 @@ void computeMandelbrotThread(const sf::Vector2i& origin,
                                       dimension,
                                       pixelDimensions,
                                       precision,
-                                      pixelColors,
+                                      pixelIteration,
                                       x, xEnd));
         iThread++;
     }

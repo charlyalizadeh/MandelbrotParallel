@@ -24,13 +24,3 @@ int computeMandelbrotPixel(int pixelX, int pixelY,
     }
     return i;
 }
-
-void colorPixel(unsigned char* pixelColors,
-                int index,
-                int r, int g, int b, int a)
-{
-    pixelColors[index] = r;
-    pixelColors[index + 1] = g;
-    pixelColors[index + 2] = b;
-    pixelColors[index + 3] = a;
-}

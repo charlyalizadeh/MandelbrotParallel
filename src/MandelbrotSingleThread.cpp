@@ -6,7 +6,7 @@ void computeMandelbrotSingleThread(const sf::Vector2i& origin,
                                    const sf::Vector2i& dimension,
                                    const sf::Vector2<double>& pixelDimensions,
                                    int precision,
-                                   unsigned char *pixelColors)
+                                   unsigned int *pixelIteration)
 {
     int mandelbrotValue;
     float ratio;
@@ -15,12 +15,8 @@ void computeMandelbrotSingleThread(const sf::Vector2i& origin,
     {
         for(int y = 0; y < dimension.y; y++)
         {
-            mandelbrotValue = computeMandelbrotPixel(x, y, origin.x, origin.y, pixelDimensions.x, pixelDimensions.y, precision);
-            ratio = (float)mandelbrotValue / precision * 5;
-            if(mandelbrotValue == precision)
-                colorPixel(pixelColors, (y * dimension.x + x) * 4, 255, 255, 255, 255);
-            else
-                colorPixel(pixelColors, (y * dimension.x + x) * 4, 0, 0, 0, 255);
+            int iteration = computeMandelbrotPixel(x, y, origin.x, origin.y, pixelDimensions.x, pixelDimensions.y, precision);
+            pixelIteration[y * dimension.x + x] = iteration;
         }
     }
 }
@@ -31,7 +27,7 @@ void computeMandelbrotSingleThreadIntrinsic(const sf::Vector2i& origin,
                                             const sf::Vector2i& dimension,
                                             const sf::Vector2<double>& pixelDimensions,
                                             int precision,
-                                            unsigned char *pixelColors)
+                                            unsigned int *pixelIteration)
 {
     double xScale = -origin.x * pixelDimensions.x;
     double yScale = -origin.y * pixelDimensions.y;
@@ -98,12 +94,7 @@ void computeMandelbrotSingleThreadIntrinsic(const sf::Vector2i& origin,
 
             // Coloring
             for(int i = 0; i < 4; i++)
-            {
-                if(int(_i[i]) == precision)
-                    colorPixel(pixelColors, (y * dimension.x + x + 3 - i) * 4, 255, 255, 255, 255);
-                else
-                    colorPixel(pixelColors, (y * dimension.x + x + 3 - i) * 4, 0, 0, 0, 255);
-            }
+                pixelIteration[y * dimension.x + x + 3 - i] = _i[i];
             _cR = _mm256_add_pd(_cR, _xJumps);
         }
         yScale += pixelDimensions.y;

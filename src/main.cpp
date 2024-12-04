@@ -13,6 +13,7 @@
 #include "../include/MandelbrotSingleThread.hpp"
 #include "../include/MandelbrotOpenMP.hpp"
 #include "../include/MandelbrotThread.hpp"
+#include "../include/IterationColors.hpp"
 
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
@@ -151,7 +152,7 @@ int main()
                            sf::Vector2i(1920 / 2 + 600, 1080 / 2),
                            sf::Vector2<double>(0.002, 0.002),
                            40,
-                           0,
+                           1,
                            4,
                            true);
     const char* computeMethods[] = { "Single Thread", "OpenMP", "std::thread" };
@@ -161,12 +162,12 @@ int main()
     InteractionState interactionState;
     interactionState.isDraging = false;
 
-
-    // Timing of the mandelbrot computation
+    // Display timing of the mandelbrot computation
     std::string mandelbrotTime;
 
     // Pixel array
     sf::Uint8 *pixelColors = new sf::Uint8[mState.dimension.x * mState.dimension.y * 4];
+    unsigned int *pixelIteration = new unsigned int[mState.dimension.x * mState.dimension.y];
     auto t1 = high_resolution_clock::now();
     auto t2 = high_resolution_clock::now();
     switch(mState.computeMethod)
@@ -175,24 +176,24 @@ int main()
             if(mState.intrinsic)
             {
                 t1 = high_resolution_clock::now();
-                computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
+                computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration);
                 t2 = high_resolution_clock::now();
             }
             else
             {
                 t1 = high_resolution_clock::now();
-                computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
+                computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration);
                 t2 = high_resolution_clock::now();
             }
             break;
         case 1:
             t1 = high_resolution_clock::now();
-            computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
+            computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration, mState.nThread);
             t2 = high_resolution_clock::now();
             break;
         case 2:
             t1 = high_resolution_clock::now();
-            computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
+            computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration, mState.nThread);
             t2 = high_resolution_clock::now();
             break;
     }
@@ -204,7 +205,23 @@ int main()
     if(!ImGui::SFML::Init(window))
         return 0;
 
+    // Color gradient
+    std::vector<sf::Vector3i> colors = {
+        sf::Vector3i(  0,   7, 100),
+        sf::Vector3i( 32, 107, 203),
+        sf::Vector3i(237, 255, 255),
+        sf::Vector3i(255, 170,   0),
+        sf::Vector3i(  0,   2,   0)
+    };
+    std::vector<int> steps = {500, 500, 200, 200};
+    auto gradient = createColorGradient(colors, steps);
+    for(auto const& g : gradient)
+    {
+        printf("(%d, %d, %d)\n", g.x, g.y, g.z);
+    }
+
     // Texture and sprite to render
+    iterationToColorsGradient(pixelIteration, mState.dimension.x, mState.dimension.y, mState.precision, gradient, pixelColors);
     sf::Texture texture;
     texture.create(mState.dimension.x, mState.dimension.y);
     texture.update(pixelColors);
@@ -230,24 +247,24 @@ int main()
                     if(mState.intrinsic)
                     {
                         t1 = high_resolution_clock::now();
-                        computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
+                        computeMandelbrotSingleThreadIntrinsic(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration);
                         t2 = high_resolution_clock::now();
                     }
                     else
                     {
                         t1 = high_resolution_clock::now();
-                        computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors);
+                        computeMandelbrotSingleThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration);
                         t2 = high_resolution_clock::now();
                     }
                     break;
                 case 1:
                     t1 = high_resolution_clock::now();
-                    computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
+                    computeMandelbrotOpenMP(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration, mState.nThread);
                     t2 = high_resolution_clock::now();
                     break;
                 case 2:
                     t1 = high_resolution_clock::now();
-                    computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelColors, mState.nThread);
+                    computeMandelbrotThread(mState.origin, mState.dimension, mState.pixelDimension, mState.precision, pixelIteration, mState.nThread);
                     t2 = high_resolution_clock::now();
                     break;
             }
@@ -255,6 +272,7 @@ int main()
             duration<double, std::milli> ms_double = t2 - t1;
             mandelbrotTime = std::to_string(ms_double.count());
 
+            iterationToColorsGradient(pixelIteration, mState.dimension.x, mState.dimension.y, mState.precision, gradient, pixelColors);
             texture.update(pixelColors);
             sprite.setTexture(texture);
         }
