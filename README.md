@@ -1,4 +1,4 @@
-![Mandelbrot](./images/mandelbrot.png)
+![Mandelbrot](./images/zoom1.png)
 
 # Mandelbrot parallelization
 
