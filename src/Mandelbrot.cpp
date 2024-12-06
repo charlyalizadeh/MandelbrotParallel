@@ -11,7 +11,7 @@ int computeMandelbrotPixel(int pixelX, int pixelY,
     int i;
 
     cR = (pixelX - originX) * pixelDimensionX;
-    cI = (pixelY - originY) * pixelDimensionY;
+    cI = (originY - pixelY) * pixelDimensionY;
     zR = cR;
     zI = cI;
     i = 0;
