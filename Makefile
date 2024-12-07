@@ -1,7 +1,8 @@
 NAME=mandelbrot
 SRCS_IMGUI=lib/imgui/imgui.cpp lib/imgui/imgui_draw.cpp lib/imgui/imgui_tables.cpp lib/imgui/imgui_widgets.cpp lib/imgui/imgui-SFML.cpp
 OBJS_IMGUI=$(addprefix obj/imgui/,$(subst .cpp,.o,$(notdir $(SRCS_IMGUI))))
-SRCS=src/main.cpp src/Mandelbrot.cpp src/MandelbrotSingleThread.cpp src/MandelbrotOpenMP.cpp src/MandelbrotThread.cpp src/IterationColors.cpp
+SRCS=src/main.cpp src/Mandelbrot.cpp src/MandelbrotSingleThread.cpp src/MandelbrotOpenMP.cpp \
+	 src/MandelbrotThread.cpp src/IterationColors.cpp src/MandelbrotDrawer.cpp src/MandelbrotGUIDrawer.cpp
 OBJS=$(subst src,obj,$(subst .cpp,.o,$(SRCS)))
 INCLUDES=include lib/imgui
 FLAGS=-lsfml-window -lsfml-system -lsfml-graphics -lglfw -lGL -fopenmp -mavx -march=native -std=c++20 -I includes

@@ -14,4 +14,5 @@ void computeMandelbrotOpenMP(const sf::Vector2i& origin,
                              unsigned int *pixelIteration,
                              unsigned int numThread);
 
+
 #endif

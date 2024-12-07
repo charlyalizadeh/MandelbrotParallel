@@ -5,6 +5,7 @@
 #include <cmath>
 #include <SFML/System/Vector3.hpp>
 
+
 void colorPixel(unsigned char* pixelColors,
                 int index,
                 int r, int g, int b, int a);
